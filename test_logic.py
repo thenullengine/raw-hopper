@@ -6,7 +6,6 @@ This tests the HopperLogic class functionality.
 import sys
 import os
 import tempfile
-import json
 from datetime import datetime
 
 # Import only the logic parts - we'll handle tkinter error
@@ -14,7 +13,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 # Mock tkinter if not available
 try:
-    import tkinter
+    import tkinter  # noqa: F401
 except ImportError:
     # Create a mock tkinter module
     class MockTk:
@@ -40,12 +39,10 @@ def test_config_persistence():
     """Test configuration save and load."""
     print("Testing configuration persistence...")
 
-    # Create a temporary config file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json',
-                                     delete=False) as f:
-        config_path = f.name
+    # Create a temporary directory
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config_path = os.path.join(tmpdir, 'test_config.json')
 
-    try:
         # Import after ensuring path
         from raw_hopper import HopperLogic
 
@@ -62,11 +59,8 @@ def test_config_persistence():
         assert logic2.config['year_format'] == '%Y-TEST'
         assert logic2.config['source_path'] == '/test/path'
 
-        print("✓ Configuration persistence test passed")
-        return True
-    finally:
-        if os.path.exists(config_path):
-            os.unlink(config_path)
+    print("✓ Configuration persistence test passed")
+    return True
 
 
 def test_path_construction():

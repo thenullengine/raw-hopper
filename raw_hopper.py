@@ -269,6 +269,10 @@ class HopperLogic:
                     destination_drive, year_folder, month_folder, session_name
                 )
 
+                # Check if session creation was successful
+                if not session_path:
+                    raise Exception("Failed to create session folder")
+
                 # Move file to Capture folder
                 capture_folder = os.path.join(session_path, 'Capture')
                 dest_file = os.path.join(
@@ -279,11 +283,14 @@ class HopperLogic:
                 if os.path.exists(dest_file):
                     base, ext = os.path.splitext(os.path.basename(file_path))
                     counter = 1
-                    while os.path.exists(dest_file):
+                    max_attempts = 10000  # Prevent infinite loop
+                    while os.path.exists(dest_file) and counter < max_attempts:
                         dest_file = os.path.join(
                             capture_folder, f'{base}_{counter}{ext}'
                         )
                         counter += 1
+                    if counter >= max_attempts:
+                        raise Exception("Too many duplicate filenames")
 
                 shutil.move(file_path, dest_file)
                 success_count += 1
@@ -635,7 +642,7 @@ class HopperUI:
             finally:
                 self.run_btn.config(state='normal')
 
-        thread = threading.Thread(target=run_thread, daemon=True)
+        thread = threading.Thread(target=run_thread, daemon=False)
         thread.start()
 
 
