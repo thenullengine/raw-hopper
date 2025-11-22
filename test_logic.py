@@ -19,15 +19,19 @@ except ImportError:
     class MockTk:
         pass
 
+    class MockCallable:
+        def __call__(self, *args, **kwargs):
+            return None
+
     class MockModule:
         Tk = MockTk
-        StringVar = type
-        Text = type
-        Canvas = type
-        Frame = type
+        StringVar = MockCallable()
+        Text = MockCallable()
+        Canvas = MockCallable()
+        Frame = MockCallable()
 
         def __getattr__(self, name):
-            return type(name, (), {})
+            return MockCallable()
 
     sys.modules['tkinter'] = MockModule()
     sys.modules['tkinter.ttk'] = MockModule()

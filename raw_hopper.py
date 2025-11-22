@@ -154,7 +154,7 @@ class HopperLogic:
 
     def find_or_create_session(self, destination_root: str, year_folder: str,
                                month_folder: str,
-                               session_name: str) -> Optional[str]:
+                               session_name: str) -> str:
         """
         Find or create a Capture One session folder.
         Returns the path to the session folder.
@@ -642,7 +642,9 @@ class HopperUI:
             finally:
                 self.run_btn.config(state='normal')
 
-        thread = threading.Thread(target=run_thread, daemon=False)
+        # Use daemon thread so app can close cleanly
+        # File operations (shutil.move) are atomic and won't corrupt
+        thread = threading.Thread(target=run_thread, daemon=True)
         thread.start()
 
 
